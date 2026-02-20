@@ -2,163 +2,335 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS PMS | Central de Reservas</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;700&display=swap"
-        rel="stylesheet">
-    <!-- Ionicons for modern icons -->
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXUS PMS | Central de Reservas</title>
 
-    <link rel="stylesheet" href="styles/design-system.css">
-    <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="styles/components.css">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Ionicons for modern icons -->
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+  <!-- Your styles -->
+  <link rel="stylesheet" href="styles/design-system.css" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="styles/components.css" />
+
+  <!-- ✅ Mobile patch (inline, para que sea "reemplazo y listo") -->
+  <style>
+    /* --- Mobile responsive patch (drawer sidebar + KPI scroll) --- */
+    .app-container {
+      min-height: 100dvh;
+    }
+
+    /* Botón menú (solo visible en mobile) */
+    .mobile-menu-btn {
+      display: none;
+      border: 1px solid var(--border-color);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-primary, #fff);
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+      line-height: 0;
+    }
+
+    .mobile-menu-btn ion-icon {
+      font-size: 22px;
+    }
+
+    /* Overlay para cerrar menú */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(2px);
+      z-index: 40;
+    }
+
+    body.sidebar-open .sidebar-overlay {
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+
+      /* Mostrar botón menú */
+      .mobile-menu-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Sidebar se vuelve drawer */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100dvh;
+        width: min(320px, 86vw);
+        z-index: 50;
+        transform: translateX(-105%);
+        transition: transform 180ms ease;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      body.sidebar-open .sidebar {
+        transform: translateX(0);
+      }
+
+      /* Main ocupa todo */
+      .main-workspace {
+        width: 100%;
+        min-width: 0;
+      }
+
+      /* Header más "mobile": sticky + alineación */
+      .top-dashboard {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 12px;
+      }
+
+      /* KPIs scrolleables horizontal */
+      .kpi-container {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+      }
+
+      .kpi-card {
+        flex: 0 0 auto;
+        min-width: 160px;
+        scroll-snap-align: start;
+      }
+
+      /* Contenido */
+      .view-content {
+        padding: 12px;
+        min-width: 0;
+      }
+
+      /* Footer */
+      .app-footer {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      /* Anti scroll horizontal fantasma */
+      html,
+      body {
+        overflow-x: hidden;
+      }
+
+      * {
+        min-width: 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <div id="app" class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar glass">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <span class="logo-text">NEXUS</span>
-                    <span class="logo-sub">PMS</span>
-                </div>
-            </div>
-
-            <nav class="sidebar-nav">
-                <ul class="nav-links">
-                    <li class="nav-item active" data-view="rack">
-                        <ion-icon name="grid-outline"></ion-icon>
-                        <span>Room Rack</span>
-                    </li>
-                    <li class="nav-item" data-view="reservations">
-                        <ion-icon name="calendar-outline"></ion-icon>
-                        <span>Reservas</span>
-                    </li>
-                    <li class="nav-item" data-view="availability">
-                        <ion-icon name="search-outline"></ion-icon>
-                        <span>Disponibilidad</span>
-                    </li>
-                    <li class="nav-item" data-view="guests" style="border-left: 3px solid rgba(212,175,55,0.5);">
-                        <ion-icon name="people-outline" style="color:var(--accent-gold);"></ion-icon>
-                        <span style="color:var(--accent-gold);">Huéspedes</span>
-                    </li>
-                    <li class="nav-item" data-view="quote" style="border-left: 3px solid var(--accent-cyan);">
-                        <ion-icon name="flash" style="color:var(--accent-cyan)"></ion-icon>
-                        <span style="color:var(--accent-cyan); font-weight:700;">Cotizador Express</span>
-                    </li>
-                    <li class="nav-item" data-view="rates">
-                        <ion-icon name="cash-outline"></ion-icon>
-                        <span>Tarifas</span>
-                    </li>
-                    <li class="nav-item" data-view="housekeeping">
-                        <ion-icon name="brush-outline"></ion-icon>
-                        <span>Housekeeping / Ops</span>
-                    </li>
-                    <li class="nav-item" data-view="reports">
-                        <ion-icon name="stats-chart-outline"></ion-icon>
-                        <span>Reportes</span>
-                    </li>
-                    <li class="nav-item" data-view="preferences">
-                        <ion-icon name="settings-outline"></ion-icon>
-                        <span>Preferencias</span>
-                    </li>
-
-                </ul>
-            </nav>
-
-            <div class="sidebar-footer"
-                style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 1rem;">
-                <button class="btn btn-secondary" onclick="Store.runNightAudit()"
-                    style="width: 100%; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(var(--accent-cyan-rgb), 0.1); border-color: rgba(var(--accent-cyan-rgb), 0.2); color: var(--accent-cyan); padding: 0.8rem;">
-                    <ion-icon name="moon" style="font-size: 1.2rem;"></ion-icon>
-                    Auditoría Nocturna
-                </button>
-                <div class="user-profile" style="margin: 0; padding: 0;">
-                    <div class="avatar">AD</div>
-                    <div class="user-info">
-                        <span class="user-name">Admin</span>
-                        <span class="user-role">Superuser</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Workspace -->
-        <main class="main-workspace">
-            <!-- Top Dashboard Dashboard -->
-            <header class="top-dashboard glass">
-                <div id="dashboard-header-info" class="dashboard-header-info"></div>
-                <div class="kpi-container" id="kpi-container">
-                    <div class="kpi-card glass anim-fade-in">
-                        <span class="kpi-label">Ocupación</span>
-                        <span class="kpi-value" id="kpi-occupancy">0%</span>
-                    </div>
-                    <div class="kpi-card glass anim-fade-in" style="animation-delay: 0.1s">
-                        <span class="kpi-label">Llegadas/Salidas</span>
-                        <div style="display:flex; gap: 8px; align-items: baseline;">
-                            <span class="kpi-value" id="kpi-arrivals">0</span>
-                            <span style="opacity:0.4">/</span>
-                            <span class="kpi-value" id="kpi-departures" style="opacity:0.8; font-size: 1.1rem;">0</span>
-                        </div>
-                    </div>
-                    <div class="kpi-card glass anim-fade-in" style="animation-delay: 0.2s">
-                        <span class="kpi-label">In-House</span>
-                        <span class="kpi-value" id="kpi-inhouse">0</span>
-                    </div>
-                    <div class="kpi-card glass anim-fade-in" style="animation-delay: 0.3s">
-                        <span class="kpi-label">ADR</span>
-                        <span class="kpi-value" id="kpi-adr">$0</span>
-                    </div>
-                    <div class="kpi-card glass anim-fade-in" style="animation-delay: 0.4s">
-                        <span class="kpi-label">RevPAR</span>
-                        <span class="kpi-value" id="kpi-revpar">$0</span>
-                    </div>
-                </div>
-            </header>
-
-            <!-- View Container -->
-            <section id="view-content" class="view-content">
-                <!-- Rack view is default -->
-            </section>
-        </main>
-
-        <!-- Reservation Modal (shared across views) -->
-        <div id="reservation-modal" class="modal-overlay hidden">
-            <div class="modal-container glass">
-                <header class="modal-header">
-                    <h2 id="modal-title">Nueva Reserva</h2>
-                    <button class="close-modal" onclick="closeModal()">
-                        <ion-icon name="close-outline"></ion-icon>
-                    </button>
-                </header>
-                <div class="modal-body">
-                    <form id="reservation-form">
-                        <!-- Form content will be injected or defined here -->
-                    </form>
-                </div>
-            </div>
+  <div id="app" class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar glass">
+      <div class="sidebar-header">
+        <div class="logo">
+          <span class="logo-text">NEXUS</span>
+          <span class="logo-sub">PMS</span>
         </div>
+      </div>
 
-        <!-- Modals and dynamic content will be injected by UI.js -->
+      <nav class="sidebar-nav">
+        <ul class="nav-links">
+          <li class="nav-item active" data-view="rack">
+            <ion-icon name="grid-outline"></ion-icon>
+            <span>Room Rack</span>
+          </li>
+          <li class="nav-item" data-view="reservations">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>Reservas</span>
+          </li>
+          <li class="nav-item" data-view="availability">
+            <ion-icon name="search-outline"></ion-icon>
+            <span>Disponibilidad</span>
+          </li>
+          <li class="nav-item" data-view="guests" style="border-left: 3px solid rgba(212,175,55,0.5);">
+            <ion-icon name="people-outline" style="color:var(--accent-gold);"></ion-icon>
+            <span style="color:var(--accent-gold);">Huéspedes</span>
+          </li>
+          <li class="nav-item" data-view="quote" style="border-left: 3px solid var(--accent-cyan);">
+            <ion-icon name="flash" style="color:var(--accent-cyan)"></ion-icon>
+            <span style="color:var(--accent-cyan); font-weight:700;">Cotizador Express</span>
+          </li>
+          <li class="nav-item" data-view="rates">
+            <ion-icon name="cash-outline"></ion-icon>
+            <span>Tarifas</span>
+          </li>
+          <li class="nav-item" data-view="housekeeping">
+            <ion-icon name="brush-outline"></ion-icon>
+            <span>Housekeeping / Ops</span>
+          </li>
+          <li class="nav-item" data-view="reports">
+            <ion-icon name="stats-chart-outline"></ion-icon>
+            <span>Reportes</span>
+          </li>
+          <li class="nav-item" data-view="preferences">
+            <ion-icon name="settings-outline"></ion-icon>
+            <span>Preferencias</span>
+          </li>
+        </ul>
+      </nav>
 
-        <!-- Footer -->
-        <footer class="app-footer">
-            <p>“Un buen PMS no ordena habitaciones. Ordena decisiones.”</p>
-        </footer>
+      <div class="sidebar-footer"
+        style="padding: 1.5rem; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 1rem;">
+        <button class="btn btn-secondary" onclick="Store.runNightAudit()"
+          style="width: 100%; border-radius: 12px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: rgba(var(--accent-cyan-rgb), 0.1); border-color: rgba(var(--accent-cyan-rgb), 0.2); color: var(--accent-cyan); padding: 0.8rem;">
+          <ion-icon name="moon" style="font-size: 1.2rem;"></ion-icon>
+          Auditoría Nocturna
+        </button>
+
+        <div class="user-profile" style="margin: 0; padding: 0;">
+          <div class="avatar">AD</div>
+          <div class="user-info">
+            <span class="user-name">Admin</span>
+            <span class="user-role">Superuser</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ✅ Overlay para mobile (cierra menú) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <!-- Main Workspace -->
+    <main class="main-workspace">
+      <!-- Top Dashboard -->
+      <header class="top-dashboard glass">
+        <!-- ✅ Botón menú para mobile -->
+        <button class="mobile-menu-btn" type="button" aria-label="Abrir menú" title="Menú">
+          <ion-icon name="menu-outline"></ion-icon>
+        </button>
+
+        <div id="dashboard-header-info" class="dashboard-header-info"></div>
+
+        <div class="kpi-container" id="kpi-container">
+          <div class="kpi-card glass anim-fade-in">
+            <span class="kpi-label">Ocupación</span>
+            <span class="kpi-value" id="kpi-occupancy">0%</span>
+          </div>
+
+          <div class="kpi-card glass anim-fade-in" style="animation-delay: 0.1s">
+            <span class="kpi-label">Llegadas/Salidas</span>
+            <div style="display:flex; gap: 8px; align-items: baseline;">
+              <span class="kpi-value" id="kpi-arrivals">0</span>
+              <span style="opacity:0.4">/</span>
+              <span class="kpi-value" id="kpi-departures" style="opacity:0.8; font-size: 1.1rem;">0</span>
+            </div>
+          </div>
+
+          <div class="kpi-card glass anim-fade-in" style="animation-delay: 0.2s">
+            <span class="kpi-label">In-House</span>
+            <span class="kpi-value" id="kpi-inhouse">0</span>
+          </div>
+
+          <div class="kpi-card glass anim-fade-in" style="animation-delay: 0.3s">
+            <span class="kpi-label">ADR</span>
+            <span class="kpi-value" id="kpi-adr">$0</span>
+          </div>
+
+          <div class="kpi-card glass anim-fade-in" style="animation-delay: 0.4s">
+            <span class="kpi-label">RevPAR</span>
+            <span class="kpi-value" id="kpi-revpar">$0</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- View Container -->
+      <section id="view-content" class="view-content">
+        <!-- Rack view is default -->
+      </section>
+    </main>
+
+    <!-- Reservation Modal (shared across views) -->
+    <div id="reservation-modal" class="modal-overlay hidden">
+      <div class="modal-container glass">
+        <header class="modal-header">
+          <h2 id="modal-title">Nueva Reserva</h2>
+          <button class="close-modal" onclick="closeModal()">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </header>
+        <div class="modal-body">
+          <form id="reservation-form">
+            <!-- Form content will be injected or defined here -->
+          </form>
+        </div>
+      </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="scripts/utils.js"></script>
-    <script src="scripts/store.js"></script>
-    <script src="scripts/ui.js"></script>
-    <script src="scripts/main.js"></script>
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>“Un buen PMS no ordena habitaciones. Ordena decisiones.”</p>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script src="scripts/utils.js"></script>
+  <script src="scripts/store.js"></script>
+  <script src="scripts/ui.js"></script>
+  <script src="scripts/main.js"></script>
+
+  <!-- ✅ Mobile drawer logic (inline, para que no tengas que editar JS) -->
+  <script>
+    (function () {
+      function setupMobileDrawer() {
+        const btn = document.querySelector(".mobile-menu-btn");
+        const overlay = document.getElementById("sidebar-overlay");
+
+        const open = () => document.body.classList.add("sidebar-open");
+        const close = () => document.body.classList.remove("sidebar-open");
+
+        if (btn) btn.addEventListener("click", open);
+        if (overlay) overlay.addEventListener("click", close);
+
+        // Cierra al tocar un item del menú (en mobile)
+        document.querySelectorAll(".sidebar .nav-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            if (window.matchMedia("(max-width: 900px)").matches) close();
+          });
+        });
+
+        // Cierra con ESC
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") close();
+        });
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", setupMobileDrawer);
+      } else {
+        setupMobileDrawer();
+      }
+    })();
+  </script>
 </body>
+
+</html>
 
 </html>
