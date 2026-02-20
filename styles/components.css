@@ -709,4 +709,69 @@ input:focus {
 
 .state-none .avail-num {
     opacity: 0.8;
+
+/* =========================================================
+   PATCH: MODAL MOBILE SCROLL + FIX VISUAL "CHANGA"
+   Pegar AL FINAL de: styles/components.css
+   ========================================================= */
+
+html.modal-open, body.modal-open {
+  overflow: hidden;
+  height: 100%;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px;
+
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+.modal-overlay.hidden {
+  display: none !important;
+}
+
+.modal-container {
+  width: min(560px, 92vw);
+  max-height: calc(100dvh - 24px);
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.modal-header {
+  flex: 0 0 auto;
+}
+
+.modal-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding-bottom: 18px;
+}
+
+body.modal-open .app-footer {
+  display: none !important;
+}
+
+body.modal-open .sidebar-overlay {
+  display: none !important;
+}
+
+@media (max-width: 900px) {
+  html, body { overflow-x: hidden; }
+  * { min-width: 0; }
 }
