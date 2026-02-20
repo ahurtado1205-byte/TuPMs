@@ -63,4 +63,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     console.log('NEXUS PMS | Operational');
 });
+/* =========================================================
+   PATCH: MODAL OPEN/CLOSE SYNC (mobile scroll friendly)
+   Pegar AL FINAL de: scripts/main.js
+   ========================================================= */
+
+(() => {
+  const modal = document.getElementById("reservation-modal");
+  if (!modal) return;
+
+  const syncModalState = () => {
+    const isOpen = !modal.classList.contains("hidden");
+    document.documentElement.classList.toggle("modal-open", isOpen);
+    document.body.classList.toggle("modal-open", isOpen);
+
+    if (isOpen) document.body.classList.remove("sidebar-open");
+  };
+
+  const observer = new MutationObserver(syncModalState);
+  observer.observe(modal, { attributes: true, attributeFilter: ["class"] });
+
+  syncModalState();
+})();
+
 
